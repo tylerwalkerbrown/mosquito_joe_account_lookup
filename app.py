@@ -19,8 +19,8 @@ def load_and_merge_data(file1, file2, file3, account_number):
     df2 = pd.read_csv(file2)
     df3 = pd.read_csv(file3)
     
-    merge1 = pd.merge(df1, df2, on='accountnum')
-    merge2 = pd.merge(merge1, df3, on='accountnum')
+    merge1 = pd.merge(df1, df2, on='accountnum', how = 'left')
+    merge2 = pd.merge(merge1, df3, on='accountnum', how = 'left' )
     merge2 = merge2[merge2['accountnum'] == account_number]
     
     return merge2
