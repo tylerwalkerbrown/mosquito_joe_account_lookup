@@ -1,5 +1,15 @@
 import streamlit as st
 import pandas as pd
+def streamlit_main():
+    st.title("Streamlit App Requirements")
+
+    requirements = """
+    streamlit==1.10.0
+    pandas==1.4.2
+    """
+
+    st.text("Below are the requirements for this Streamlit app:")
+    st.code(requirements, language='bash')
 
 def load_data(uploaded_file):
     return pd.read_csv(uploaded_file)
