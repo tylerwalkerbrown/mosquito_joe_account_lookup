@@ -1,17 +1,5 @@
 import streamlit as st
 import pandas as pd
-def streamlit_main():
-    st.title("Streamlit App Requirements")
-
-    requirements = """
-    streamlit==1.10.0
-    pandas==1.4.2
-    """
-
-    st.text("Below are the requirements for this Streamlit app:")
-    st.code(requirements, language='bash')
-import streamlit as st
-import pandas as pd
 
 def load_data(file1, file2, file3):
     df1 = pd.read_csv(file1)
@@ -48,17 +36,28 @@ def streamlit_main():
 
         # Multiplier input
         multiplier = st.number_input("Enter a multiplier for avg_bill", value=1, step=1)
+        discount = st.number_input("Discount Amount")
 
         # Search button
         if st.button("Search"):
-            filtered_df = merged_df[merged_df['accountnum'] == selected_account]
-            df = filtered_df[['Businessname', 'completeddate', 'accountnum', 'SumOfbillamount', 'saledate', 'duration', 'measurement']]
-            aggregates_df = calculate_aggregates(df)
+            if discount == 0:
+                filtered_df = merged_df[merged_df['accountnum'] == selected_account]
+                df = filtered_df[['Businessname', 'completeddate', 'accountnum', 'SumOfbillamount', 'saledate', 'duration', 'measurement']]
+                aggregates_df = calculate_aggregates(df)
+                st.subheader("Filtered Aggregated Data")
+                st.dataframe(df)
+                st.dataframe(aggregates_df)
+                st.dataframe((multiplier *  aggregates_df['avg_bill']))
 
-            st.subheader("Filtered Aggregated Data")
-            st.dataframe(df)
-            st.dataframe(aggregates_df)
-            st.dataframe(multiplier *  aggregates_df['avg_bill'] )
+            else:
+                filtered_df = merged_df[merged_df['accountnum'] == selected_account]
+                df = filtered_df[['Businessname', 'completeddate', 'accountnum', 'SumOfbillamount', 'saledate', 'duration', 'measurement']]
+                aggregates_df = calculate_aggregates(df)
+                st.subheader("Filtered Aggregated Data")
+                st.dataframe(df)
+                st.dataframe(aggregates_df)
+                st.dataframe((multiplier *  aggregates_df['avg_bill'])*(1 - discount))
+
 
     else:
         st.write("Please upload all three CSV files to proceed.")
