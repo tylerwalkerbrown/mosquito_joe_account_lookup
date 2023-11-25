@@ -10,18 +10,16 @@ def streamlit_main():
 
     st.text("Below are the requirements for this Streamlit app:")
     st.code(requirements, language='bash')
-
 import streamlit as st
 import pandas as pd
 
-def load_and_merge_data(file1, file2, file3, account_number):
+def load_data(file1, file2, file3):
     df1 = pd.read_csv(file1)
     df2 = pd.read_csv(file2)
     df3 = pd.read_csv(file3)
     
-    merge1 = pd.merge(df1, df2, on='accountnum', how = 'left')
-    merge2 = pd.merge(merge1, df3, on='accountnum', how = 'left' )
-    merge2 = merge2[merge2['accountnum'] == account_number]
+    merge1 = pd.merge(df1, df2, on='accountnum', how='left')
+    merge2 = pd.merge(merge1, df3, on='accountnum', how='left')
     
     return merge2
 
@@ -37,19 +35,31 @@ def calculate_aggregates(df):
 def streamlit_main():
     st.title("Data Aggregation and Display")
 
-    account_number = st.number_input("Enter an account number", value=1002406, step=1)
-
     uploaded_file_1 = st.file_uploader("Upload first CSV file", type="csv", key="file1")
     uploaded_file_2 = st.file_uploader("Upload second CSV file", type="csv", key="file2")
     uploaded_file_3 = st.file_uploader("Upload third CSV file", type="csv", key="file3")
 
     if uploaded_file_1 and uploaded_file_2 and uploaded_file_3:
-        merged_df = load_and_merge_data(uploaded_file_1, uploaded_file_2, uploaded_file_3, account_number)
-        df = merged_df[['Businessname', 'completeddate', 'accountnum', 'SumOfbillamount', 'saledate', 'duration', 'measurement']]
-        aggregates_df = calculate_aggregates(df)
+        merged_df = load_data(uploaded_file_1, uploaded_file_2, uploaded_file_3)
 
-        st.subheader("Aggregated Data")
-        st.dataframe(aggregates_df)
+        # Extracting unique account numbers for the dropdown
+        unique_accounts = merged_df['accountnum'].unique()
+        selected_account = st.selectbox("Select an account number", unique_accounts)
+
+        # Multiplier input
+        multiplier = st.number_input("Enter a multiplier for avg_bill", value=1, step=1)
+
+        # Search button
+        if st.button("Search"):
+            filtered_df = merged_df[merged_df['accountnum'] == selected_account]
+            df = filtered_df[['Businessname', 'completeddate', 'accountnum', 'SumOfbillamount', 'saledate', 'duration', 'measurement']]
+            aggregates_df = calculate_aggregates(df)
+
+            st.subheader("Filtered Aggregated Data")
+            st.dataframe(df)
+            st.dataframe(aggregates_df)
+            st.dataframe(multiplier *  aggregates_df['avg_bill'] )
+
     else:
         st.write("Please upload all three CSV files to proceed.")
 
